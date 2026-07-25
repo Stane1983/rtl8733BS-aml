@@ -135,9 +135,13 @@ loop:
 
 		/* create rule */
 		if (build) {
+			u32 idx;
+
+			WRITE_ONCE(r->n_reg_rules, r->n_reg_rules + 1);
+			idx = READ_ONCE(r->n_reg_rules) - 1;
 			RTW_DBG("add rule_%02d(%s, %d, %d, 0x%x)\n"
-				, r->n_reg_rules, band_str(start_band), start_freq, end_freq, start_flags);
-			r->reg_rules[r->n_reg_rules++] = rtw_get_ieee80211_reg_rule(chplan, start_band
+				, idx, band_str(start_band), start_freq, end_freq, start_flags);
+			r->reg_rules[idx] = rtw_get_ieee80211_reg_rule(chplan, start_band
 				, last_end_freq, start_freq, end_freq, freq, start_flags);
 		} else
 			rule_num++;
@@ -152,9 +156,13 @@ loop:
 	if (start_band != BAND_MAX) {
 		/* create rule */
 		if (build) {
+			u32 idx;
+
+			WRITE_ONCE(r->n_reg_rules, r->n_reg_rules + 1);
+			idx = READ_ONCE(r->n_reg_rules) - 1;
 			RTW_DBG("add rule_%02d(%s, %d, %d, 0x%x)\n"
-				, r->n_reg_rules, band_str(start_band), start_freq, end_freq, start_flags);
-			r->reg_rules[r->n_reg_rules++] = rtw_get_ieee80211_reg_rule(chplan, start_band
+				, idx, band_str(start_band), start_freq, end_freq, start_flags);
+			r->reg_rules[idx] = rtw_get_ieee80211_reg_rule(chplan, start_band
 				, last_end_freq, start_freq, end_freq, 0, start_flags);
 		} else
 			rule_num++;
@@ -695,7 +703,9 @@ int rtw_regd_init(struct wiphy *wiphy)
 #endif
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 19, 0))
+#ifdef REGULATORY_IGNORE_STALE_KICKOFF
 	wiphy->regulatory_flags |= REGULATORY_IGNORE_STALE_KICKOFF;
+#endif
 #endif
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 0, 0))

@@ -829,9 +829,6 @@ int rtw_mp_txpower_index(struct net_device *dev,
 int rtw_mp_txpower(struct net_device *dev,
 		struct iw_request_info *info,
 		struct iw_point *wrqu, char *extra);
-int rtw_mp_txpower(struct net_device *dev,
-		struct iw_request_info *info,
-		struct iw_point *wrqu, char *extra);
 int rtw_mp_ant_tx(struct net_device *dev,
 		struct iw_request_info *info,
 		struct iw_point *wrqu, char *extra);
@@ -844,9 +841,6 @@ int rtw_set_ctx_destAddr(struct net_device *dev,
 int rtw_mp_ctx(struct net_device *dev,
 		struct iw_request_info *info,
 		struct iw_point *wrqu, char *extra);
-int rtw_mp_disable_bt_coexist(struct net_device *dev,
-		struct iw_request_info *info,
-		union iwreq_data *wrqu, char *extra);
 int rtw_mp_disable_bt_coexist(struct net_device *dev,
 		struct iw_request_info *info,
 		union iwreq_data *wrqu, char *extra);

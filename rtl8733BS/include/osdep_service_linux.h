@@ -77,7 +77,15 @@
 	#include <asm/io.h>
 #endif
 
-#ifdef CONFIG_NET_RADIO
+#if defined(CONFIG_NET_RADIO) || defined(CONFIG_WEXT_CORE)
+	/*
+	 * CONFIG_NET_RADIO is an obsolete Kconfig symbol removed from the
+	 * mainline kernel long ago; CONFIG_WEXT_CORE is the real symbol
+	 * modern kernels use to gate Wireless Extensions support. Some
+	 * kernel trees (e.g. Android GKI/ACK) build with WEXT fully
+	 * disabled, in which case <linux/wireless.h>/<net/iw_handler.h>
+	 * no longer provide the legacy spy/iwe_stream_* API surface below.
+	 */
 	#define CONFIG_WIRELESS_EXT
 #endif
 

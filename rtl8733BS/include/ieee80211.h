@@ -348,7 +348,12 @@ typedef struct ieee_param {
 			u8 idx;
 			u8 seq[8]; /* sequence counter (set: RX, get: TX) */
 			u16 key_len;
-			u8 key[0];
+			u8 key[32]; /* fixed-size key buffer: was key[0], but that's a zero-length
+				     * array under strict flexible-array hardening (and can't be a
+				     * true C99 flexible array member here since it's inside a
+				     * union). 32 bytes covers the largest key material actually
+				     * copied in (CCMP_256/GCMP_256, and TKIP's MIC keys at +16/+24).
+				     */
 		} crypt;
 #ifdef CONFIG_AP_MODE
 		struct {
@@ -371,7 +376,7 @@ typedef struct ieee_param {
 typedef struct ieee_param_ex {
 	u32 cmd;
 	u8 sta_addr[ETH_ALEN];
-	u8 data[0];
+	u8 data[];
 } ieee_param_ex;
 
 struct sta_data {
@@ -1186,7 +1191,7 @@ struct ieee80211_info_element_hdr {
 struct ieee80211_info_element {
 	u8 id;
 	u8 len;
-	u8 data[0];
+	u8 data[];
 } __attribute__((packed));
 #endif
 
@@ -1258,7 +1263,7 @@ struct ieee80211_txb {
 	u16 reserved;
 	u16 frag_size;
 	u16 payload_size;
-	struct sk_buff *fragments[0];
+	struct sk_buff *fragments[];
 };
 
 
@@ -1297,7 +1302,9 @@ struct ieee80211_txb {
 #define IEEE80211_PS_DISABLED 0
 #define IEEE80211_PS_UNICAST IEEE80211_DTIM_UCAST
 #define IEEE80211_PS_MBCAST IEEE80211_DTIM_MBCAST
+#ifndef IW_ESSID_MAX_SIZE
 #define IW_ESSID_MAX_SIZE 32
+#endif
 #if 0
 struct ieee80211_network {
 	/* These entries are used to identify a unique network */

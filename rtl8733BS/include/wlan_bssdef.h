@@ -18,6 +18,15 @@
 
 #define MAX_IE_SZ	768
 
+#ifndef IW_ESSID_MAX_SIZE
+/* Some kernel trees (e.g. Android GKI/ACK) build with Wireless
+ * Extensions disabled and no longer expose this constant from
+ * <linux/wireless.h>. It's just the max SSID length (32 bytes per
+ * 802.11), so define it ourselves when the kernel doesn't.
+ */
+#define IW_ESSID_MAX_SIZE 32
+#endif
+
 
 #ifdef PLATFORM_LINUX
 
@@ -65,7 +74,7 @@ typedef struct _NDIS_802_11_FIXED_IEs {
 typedef struct _NDIS_802_11_VARIABLE_IEs {
 	u8  ElementID;
 	u8  Length;
-	u8  data[1];
+	u8  data[];  /* variable-length trailing IE data; true flexible array member (was [1], which strict flexible-array hardening treats as a fixed 1-byte array, making any offset access provably out-of-bounds) */
 } NDIS_802_11_VARIABLE_IEs, *PNDIS_802_11_VARIABLE_IEs;
 
 typedef enum _NDIS_802_11_AUTHENTICATION_MODE {
@@ -150,7 +159,7 @@ typedef struct _NDIS_802_11_FIXED_IEs {
 typedef struct _NDIS_802_11_VARIABLE_IEs {
 	u8  ElementID;
 	u8  Length;
-	u8  data[1];
+	u8  data[];  /* variable-length trailing IE data; true flexible array member (was [1], which strict flexible-array hardening treats as a fixed 1-byte array, making any offset access provably out-of-bounds) */
 } NDIS_802_11_VARIABLE_IEs, *PNDIS_802_11_VARIABLE_IEs;
 
 typedef enum _NDIS_802_11_AUTHENTICATION_MODE {

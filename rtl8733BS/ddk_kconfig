@@ -1,0 +1,3 @@
+config RTL8733BS
+	tristate "Realtek 8733B SDIO WiFi"
+	default m

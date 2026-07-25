@@ -484,11 +484,11 @@ static inline void rtw_cfg80211_ch_switch_started_notify(struct net_device *dev,
 		(CONFIG_AMLOGIC_KERNEL_VERSION == 13515 && AML_KERNEL_VERSION >= 15)\
 	 || (CONFIG_AMLOGIC_KERNEL_VERSION == 14515 && AML_KERNEL_VERSION >= 12) ) )\
 	 || (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0) && LINUX_VERSION_CODE < KERNEL_VERSION(6, 9, 0))
-	 return cfg80211_ch_switch_started_notify(dev, &chandef, link_id, count, quiet, 0);
-#elif defined (CFG80211_SINGLE_NETDEV_MULTI_LINK_SUPPORT)
-	 return cfg80211_ch_switch_started_notify(dev, &chandef, link_id, count, quiet);
+	 return cfg80211_ch_switch_started_notify(dev, chandef, link_id, count, quiet, 0);
+#elif defined (CFG80211_SINGLE_NETDEV_MULTI_LINK_SUPPORT) || LINUX_VERSION_CODE >= KERNEL_VERSION(6, 9, 0)
+	 return cfg80211_ch_switch_started_notify(dev, chandef, link_id, count, quiet);
 #else
-	 return cfg80211_ch_switch_started_notify(dev, &chandef, count);
+	 return cfg80211_ch_switch_started_notify(dev, chandef, count);
 #endif
 }
 u8 rtw_cfg80211_ch_switch_notify(_adapter *adapter, u8 ch, u8 bw, u8 offset,
@@ -514,7 +514,9 @@ u8 rtw_cfg80211_ch_switch_notify(_adapter *adapter, u8 ch, u8 bw, u8 offset,
 	if (!rtw_cfg80211_allow_ch_switch_notify(adapter))
 		goto exit;
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 9, 0))
+	cfg80211_ch_switch_notify(adapter->pnetdev, &chdef, 0);
+#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0))
 #if ((defined (AML_KERNEL_VERSION) && AML_KERNEL_VERSION >= 15) || LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 153))
 	cfg80211_ch_switch_notify(adapter->pnetdev, &chdef, 0, 0);
 #else
@@ -5627,9 +5629,16 @@ exit:
 	return ret;
 }
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 7, 0))
+static int cfg80211_rtw_change_beacon(struct wiphy *wiphy, struct net_device *ndev,
+		struct cfg80211_ap_update *update)
+{
+	struct cfg80211_beacon_data *info = &update->beacon;
+#else
 static int cfg80211_rtw_change_beacon(struct wiphy *wiphy, struct net_device *ndev,
 		struct cfg80211_beacon_data *info)
 {
+#endif
 	int ret = 0;
 	_adapter *adapter = (_adapter *)rtw_netdev_priv(ndev);
 
