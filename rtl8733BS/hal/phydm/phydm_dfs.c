@@ -72,8 +72,9 @@ void phydm_radar_detect_reset(void *dm_void)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 
-	if (dm->support_ic_type & (ODM_RTL8198F | ODM_RTL8822C | ODM_RTL8812F |
-				   ODM_RTL8197G | ODM_RTL8733B)) {
+	if (dm->support_ic_type & (ODM_RTL8198F | ODM_RTL8822C | ODM_RTL8812F |\
+				   ODM_RTL8197G | ODM_RTL8733B | ODM_RTL8735B |\
+				   ODM_RTL8730A | ODM_RTL8822E)) {
 		odm_set_bb_reg(dm, R_0xa40, BIT(15), 0);
 		odm_set_bb_reg(dm, R_0xa40, BIT(15), 1);
 	#if (RTL8721D_SUPPORT)
@@ -99,8 +100,9 @@ void phydm_radar_detect_disable(void *dm_void)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 
-	if (dm->support_ic_type & (ODM_RTL8198F | ODM_RTL8822C | ODM_RTL8812F |
-				   ODM_RTL8197G | ODM_RTL8733B))
+	if (dm->support_ic_type & (ODM_RTL8198F | ODM_RTL8822C | ODM_RTL8812F |\
+				   ODM_RTL8197G | ODM_RTL8733B | ODM_RTL8735B |\
+				   ODM_RTL8730A | ODM_RTL8822E))
 		odm_set_bb_reg(dm, R_0xa40, BIT(15), 0);
 	else if (dm->support_ic_type & (ODM_RTL8814B | ODM_RTL8814C)) {
 		if (dm->seg1_dfs_flag == 1) {
@@ -640,7 +642,7 @@ void phydm_dfs_parameter_init(void *dm_void)
 		dfs->hist_cond_on = 1;
 	else
 		dfs->hist_cond_on = 0;
-	if (dm->support_ic_type & (ODM_RTL8733B | ODM_RTL8822C)) {
+	if (dm->support_ic_type & (ODM_RTL8733B | ODM_RTL8822C | ODM_RTL8822E)) {
 		dfs->det_print_jar3 = 1;
 		dfs->nhm_dfs_en = true;
 		dfs->det_jar3_en = true;
@@ -900,7 +902,7 @@ phydm_radar_detect_dm_check(
 	u32 reg920_value = 0, reg924_value = 0, radar_rpt_reg_value = 0;
 	u32 regf54_value = 0, regf58_value = 0, regf5c_value = 0;
 	u32 regdf4_value = 0, regf70_value = 0, regf74_value = 0;
-	#if (RTL8812F_SUPPORT || RTL8822C_SUPPORT || RTL8814B_SUPPORT || RTL8733B_SUPPORT)
+	#if (RTL8812F_SUPPORT || RTL8822C_SUPPORT || RTL8814B_SUPPORT || RTL8733B_SUPPORT ||RTL8822E_SUPPORT)
 	u32 rega40_value = 0, rega44_value = 0, rega48_value = 0;
 	u32 rega4c_value = 0, rega50_value = 0, rega54_value = 0;
 	u32 reg_2e08 = 0, reg_2e24 = 0, reg_2e28 = 0;
@@ -968,8 +970,9 @@ phydm_radar_detect_dm_check(
 	else
 		index = 5 + dfs->mask_idx - 2;
 
-	if (dm->support_ic_type & (ODM_RTL8198F | ODM_RTL8822C | ODM_RTL8812F |
-				   ODM_RTL8197G| ODM_RTL8733B)) {
+	if (dm->support_ic_type & (ODM_RTL8198F | ODM_RTL8822C | ODM_RTL8812F |\
+				   ODM_RTL8197G| ODM_RTL8733B | ODM_RTL8735B |\
+				   ODM_RTL8730A | ODM_RTL8822E)) {
 		radar_rpt_reg_value = odm_get_bb_reg(dm, R_0x2e00, 0xffffffff);
 		short_pulse_cnt_cur = (u16)((radar_rpt_reg_value & 0x000ff800)
 					    >> 11);
@@ -1026,6 +1029,7 @@ phydm_radar_detect_dm_check(
 	dfs->long_pulse_cnt_pre = long_pulse_cnt_cur;
 
 	total_pulse_count_inc = short_pulse_cnt_inc + long_pulse_cnt_inc;
+	//PHYDM_DBG(dm, DBG_DFS, "total_pulse_count_inc=%d\n", total_pulse_count_inc);
 
 	if (dfs->det_print) {
 		PHYDM_DBG(dm, DBG_DFS,
@@ -1051,7 +1055,8 @@ phydm_radar_detect_dm_check(
 				  dfs->igi_cur, dfs->st_l2h_cur,
 				  radar_rpt_reg_value, short_pulse_cnt_inc,
 				  long_pulse_cnt_inc);
-		#if (RTL8812F_SUPPORT || RTL8822C_SUPPORT || RTL8814B_SUPPORT)
+		#if (RTL8812F_SUPPORT || RTL8822C_SUPPORT || RTL8814B_SUPPORT ||\
+			RTL8822E_SUPPORT)
 			rega40_value = odm_get_bb_reg(dm, R_0xa40, MASKDWORD);
 			rega44_value = odm_get_bb_reg(dm, R_0xa44, MASKDWORD);
 			rega48_value = odm_get_bb_reg(dm, R_0xa48, MASKDWORD);
@@ -1143,7 +1148,7 @@ phydm_radar_detect_dm_check(
 	}
 
 	st_l2h_new = dfs->st_l2h_cur;
-#if (RTL8733B_SUPPORT||RTL8822C_SUPPORT)
+#if (RTL8733B_SUPPORT||RTL8822C_SUPPORT || RTL8822E_SUPPORT)
 	if (dm->support_ic_type & ODM_IC_JGR3_SERIES) {
 		if (dfs->pulse_type_hist[dfs->mask_idx])
 			dfs->radar_type = 1;
@@ -1300,7 +1305,7 @@ phydm_radar_detect_dm_check(
 
 	return radar_detected;
 }
-#if (RTL8733B_SUPPORT || RTL8822C_SUPPORT)
+#if (RTL8733B_SUPPORT || RTL8822C_SUPPORT || RTL8822E_SUPPORT)
 void phydm_dfs_rpt_distinguish(void *dm_void)
 {
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
@@ -1620,12 +1625,13 @@ void phydm_dfs_rpt_distinguish(void *dm_void)
 	}
 
 	/* Pattern Judgement */
-	for (i = 0; i < rdr_num; i++){
-		if (rdr_cnt[i] >= cnt_th){
+	for (i = 0; i < rdr_num; i++) {
+		if (rdr_cnt[i] >= cnt_th) {
 			dfs->pw_flag = true;
 			rdr_tmp = i;
-			}
-		}	
+		}
+	}
+	//PHYDM_DBG(dm, DBG_DFS, "rdr_tmp=%d\n", rdr_tmp);
 	
 	/* Add NHM to decide the validity of the three flags */
 	/* Use for chaotic open space */
@@ -3117,7 +3123,7 @@ u8 phydm_dfs_polling_time(void *dm_void)
 	struct dm_struct *dm = (struct dm_struct *)dm_void;
 	struct _DFS_STATISTICS *dfs = &dm->dfs;
 
-	if (dm->support_ic_type & (ODM_RTL8814A | ODM_RTL8822B | ODM_RTL8821C | ODM_RTL8822C | ODM_RTL8733B))
+	if (dm->support_ic_type & (ODM_RTL8814A | ODM_RTL8822B | ODM_RTL8821C | ODM_RTL8822C | ODM_RTL8733B | ODM_RTL8822E))
 		dfs->dfs_polling_time = 40;
 	else
 		dfs->dfs_polling_time = 100;

@@ -104,7 +104,7 @@ struct ip_options {
 	unsigned char router_alert;
 	unsigned char __pad1;
 	unsigned char __pad2;
-	unsigned char __data[];
+	unsigned char __data[0];
 };
 
 #define optlength(opt) (sizeof(struct ip_options) + opt->optlen)

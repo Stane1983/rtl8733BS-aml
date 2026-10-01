@@ -498,8 +498,6 @@ s32 rtl8733bs_recv_hdl(_adapter *adapter)
 	u8 c2h = 0;
 	s32 ret = _SUCCESS;
 
-	if (adapter == NULL)
-		return 0;
 	recvpriv = &adapter->recvpriv;
 	
 	do {
